@@ -53,7 +53,8 @@ Create a new \code{GaussianIntegrator} object.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n}}{Number of nodes in one dimension.}
+\item{\code{n}}{Number of nodes in one dimension or \code{GaussQuad} object of
+type "gaussian" to be copied.}
 
 \item{\code{mu}}{Mean of Gaussian distribution.}
 
