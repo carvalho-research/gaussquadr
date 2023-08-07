@@ -174,16 +174,23 @@ GaussianIntegrator <- R6::R6Class("GaussianIntegrator",
 
     #' @description
     #' Create a new \code{GaussianIntegrator} object.
-    #' @param n Number of nodes in one dimension.
+    #' @param n Number of nodes in one dimension or \code{GaussQuad} object of
+    #'          type "gaussian" to be copied.
     #' @param mu Mean of Gaussian distribution.
     #' @param Sigma Variance of Gaussian distribution. Can be an
-    #'        eigendecomposition, of class \code{eigen}.
+    #'              eigendecomposition, of class \code{eigen}.
     #' @param ... Remaining parameters passed to \code{GaussQuad} initializer.
     #' @return A new \code{GaussianIntegrator} object.
     initialize = function (n, mu, Sigma, ...) {
+      if (class(n)[1] == "GaussQuad") {
+        if (n$type != "gaussian") stop("invalid quadrature type: ", n$type)
+        self$type <- "gaussian";
+        self$nodes <- n$nodes; self$weights <- n$weights
+      } else {
+        super$initialize("gaussian", n, length(mu), ...)
+      }
       es <- if (any(class(Sigma) == "eigen")) es else
         eigen(Sigma, symmetric = TRUE)
-      super$initialize("gaussian", n, length(mu), ...)
       self$mu <- mu; self$Sigma <- es
       self$scale(sqrt(es$values))$rotate(es$vectors)$shift(mu)
     },
