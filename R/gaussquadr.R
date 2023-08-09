@@ -14,6 +14,15 @@
 NULL
 
 
+# log(exp(x) + exp(y))
+LOGEPS <- log(.Machine$double.eps)
+lse2 <- function (x, y) {
+  m <- max(x, y); d <- -abs(x - y)
+  if (d < LOGEPS) m else m + log1p(exp(d))
+}
+lse <- function (x) Reduce(lse2, x)
+
+
 gauss_kinds <- list(
   # classic versions:
   "legendre" = 1L, # w(x) = 1 on (-1, 1)
@@ -81,6 +90,12 @@ GaussQuad <- R6::R6Class("GaussQuad", public = list(
   #' @field beta Parameter for Jacobi and beta quadratures
   beta = 0.,
 
+  #' @field nodes_changed By location-scale transform using \code{axpy}?
+  nodes_changed = FALSE,
+
+  #' @field weights_changed By importance weighting using \code{reweight}?
+  weights_changed = FALSE,
+
   #' @description
   #' Create a new \code{GaussQuad} object.
   #' @param type Type of Gauss quadrature.
@@ -95,7 +110,7 @@ GaussQuad <- R6::R6Class("GaussQuad", public = list(
   #'        weights.
   #' @param prune_eps Prune weights below \code{eps(sum(weights))}? Defaults to TRUE.
   #' @return A new \code{GaussQuad} object.
-  initialize = function (type, n, d = 1, alpha = 0., beta = 1., endpts = NULL,
+  initialize = function (type, n, d = 1, alpha = NA, beta = NA, endpts = NULL,
                          prune_coef = 1 - 1 / d, prune_eps = TRUE) {
     kind <- gauss_kinds[[type]]
     if (is.null(kind)) stop("invalid type: `", type, "`")
@@ -156,16 +171,14 @@ GaussQuad <- R6::R6Class("GaussQuad", public = list(
 
   #' @description
   #' Prints object information.
-  #' @param short Suppress type? Defaults to FALSE.
-  print = function (short = FALSE) {
+  print = function () {
     nd <- dim(self$nodes)
     if (length(nd) == 0) {
       n <- length(self$nodes); d <- 1
     } else {
       n <- nd[1]; d <- nd[2]
     }
-    cat(class(self)[1])
-    if (!short) cat(paste0(" of type `", self$type, "`"))
+    cat(paste0(class(self)[1], " of type `", self$type, "`"))
     if (self$type == "jacobi" || self$type == "laguerre" ||
         self$type == "gamma" || self$type == "beta")
       cat(paste0(", alpha = ", self$alpha))
@@ -173,35 +186,59 @@ GaussQuad <- R6::R6Class("GaussQuad", public = list(
       cat(paste0(", beta = ", self$beta))
     cat(paste0(" [ ", n, " nodes"))
     if (d > 1) cat(paste0(" x ", d, " dims"))
-    cat(" ]\n")
+    cat(" ]")
+    if (self$nodes_changed) cat("[G]")
+    if (self$weights_changed) cat("[W]")
+    cat("\n")
     invisible(self)
   },
 
   #' @description
-  #' Scale the node grid of a \code{GaussQuad} object.
-  #' @param scale Scale to apply to each dimension of the grid.
-  scale = function (scale) {
-    self$nodes <- if (is.vector(self$nodes)) self$nodes * scale else
-      sweep(self$nodes, 2, scale, `*`)
+  #' Applies a location-scale transformation \code{A * x + y} to each node
+  #' \code{x} in the grid.
+  #' @param location Shift representing the location change.
+  #' @param scale Square matrix or vector representing the scale.
+  #' @param squared Is the scale squared? For probabilist kernels, it means
+  #' that the scale is a variance parameter. In this case, the "sqrt" of the
+  #' scale will be applied first.
+  location_scale = function (location = NULL, scale = NULL, squared = FALSE) {
+    tg <- self$nodes
+    if (!is.null(scale)) {
+      if (squared) {
+        if (is.vector(scale)) scale <- sqrt(scale) else {
+          if (!any(class(scale) == "eigen"))
+            scale <- eigen(scale, symmetric = TRUE)
+          scale <- sweep(scale$vectors, 2, sqrt(scale$values), `*`)
+        }
+      }
+      tg <- if (is.vector(tg)) tg * c(scale) else {
+        if (is.vector(scale)) sweep(tg, 2, scale, `*`) else
+          tcrossprod(tg, scale)
+      }
+    }
+    if (!is.null(location)) {
+      tg <- if (is.vector(tg)) tg + location else
+        sweep(tg, 2, location, `+`)
+    }
+    self$nodes <- tg; self$nodes_changed <- TRUE
     invisible(self)
   },
 
   #' @description
-  #' Rotates the node grid of a \code{GaussQuad} object.
-  #' @param rotation Rotation to apply to each node in the grid.
-  rotate = function (rotation) {
-    self$nodes <- if (is.vector(self$nodes)) self$nodes * c(rotation) else
-      tcrossprod(self$nodes, rotation)
-    invisible(self)
-  },
-
-  #' @description
-  #' Shift the node grid of a \code{GaussQuad} object.
-  #' @param shift Shift to apply to each dimension of the grid.
-  shift = function (shift) {
-    self$nodes <- if (is.vector(self$nodes)) self$nodes + shift else
-      sweep(self$nodes, 2, shift, `+`)
-    invisible(self)
+  #' Reweights by multiplying importance weights and optionally normalizes.
+  #' @param iw Importance weights
+  #' @param log_weights Are the importance weights in log scale?
+  #' @param normalize Should the new weights be normalized to sum to one?
+  reweight = function (iw, log_weights = FALSE, normalize = FALSE) {
+    if (log_weights) {
+      lw <- iw + log(self$weights)
+      if (normalize) lw <- lw - lse(lw)
+      w <- exp(lw)
+    } else {
+      w <- iw * self$weights
+      if (normalize) w <- w / sum(w)
+    }
+    self$weights <- w; self$weights_changed <- TRUE
   },
 
   #' @description
@@ -212,49 +249,3 @@ GaussQuad <- R6::R6Class("GaussQuad", public = list(
   E = apply_integral) # alias for probabilist types
 )
 
-
-#' GaussianIntegrator: multivariate Gaussian quadrature
-#'
-#' R6 class for multivariate Gaussian expectation.
-#' @export
-GaussianIntegrator <- R6::R6Class("GaussianIntegrator",
-  inherit = GaussQuad, public = list(
-    #' @field mean Mean of Gaussian distribution
-    mean = NULL,
-
-    #' @field variance Variance of Gaussian distribution
-    variance = NULL,
-
-    #' @description
-    #' Create a new \code{GaussianIntegrator} object.
-    #' @param n Number of nodes in one dimension or \code{GaussQuad} object of
-    #'          type "gaussian" to be copied.
-    #' @param mean Mean of Gaussian distribution.
-    #' @param variance Variance of Gaussian distribution. Can be an
-    #'                 eigendecomposition, of class \code{eigen}.
-    #' @param ... Remaining parameters passed to \code{GaussQuad} initializer.
-    #' @return A new \code{GaussianIntegrator} object.
-    initialize = function (n, mean, variance, ...) {
-      if (class(n)[1] == "GaussQuad") {
-        if (n$type != "gaussian") stop("invalid quadrature type: ", n$type)
-        self$type <- "gaussian";
-        self$nodes <- n$nodes; self$weights <- n$weights
-      } else {
-        super$initialize("gaussian", n, length(mean), ...)
-      }
-      ev <- if (any(class(variance) == "eigen")) ev else
-        eigen(variance, symmetric = TRUE)
-      self$mean <- mean; self$variance <- ev
-      self$scale(sqrt(ev$values))$rotate(ev$vectors)$shift(mean)
-    },
-
-    #' @description
-    #' Prints object information.
-    print = function () {
-      super$print(short = TRUE)
-      invisible(self)
-    })
-)
-
-GaussQuad <- GaussQuad$new
-GaussianIntegrator <- GaussianIntegrator$new

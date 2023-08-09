@@ -3,62 +3,16 @@
 \name{GaussQuad}
 \alias{GaussQuad}
 \title{GaussQuad: multivariate Gauss quadrature}
-\usage{
-GaussQuad(...)
-}
-\arguments{
-\item{type}{Type of Gauss quadrature.}
-
-\item{n}{Number of nodes in one dimension.}
-
-\item{d}{Number of dimensions.}
-
-\item{alpha}{Parameter for Jacobi, Laguerre, beta and gamma quadratures.}
-
-\item{beta}{Parameter for Jacobi and beta quadratures.}
-
-\item{endpts}{Endpoints to be fixed in quadrature.}
-
-\item{prune_coef}{Coefficient controling pruning: only weights above
-\code{exp(d * ((1 - pc) * log(min(w)) + pc * log(max(w))))} are kept.
-Defaults to \code{1 - 1 / d}. Use \code{prune_coef = 0} to keep all
-weights.}
-
-\item{prune_eps}{Prune weights below \code{eps(sum(weights))}? Defaults to TRUE.}
-
-\item{short}{Suppress type? Defaults to FALSE.}
-
-\item{scale}{Scale to apply to each dimension of the grid.}
-
-\item{rotation}{Rotation to apply to each node in the grid.}
-
-\item{shift}{Shift to apply to each dimension of the grid.}
-
-\item{f}{Integrand function.}
-}
-\value{
-A new \code{GaussQuad} object.
-
-The computed quadrature.
-}
 \description{
-Create a new \code{GaussQuad} object.
+GaussQuad: multivariate Gauss quadrature
 
-Prints object information.
-
-Scale the node grid of a \code{GaussQuad} object.
-
-Rotates the node grid of a \code{GaussQuad} object.
-
-Shift the node grid of a \code{GaussQuad} object.
-
-Computes the quadrature of the integrand \code{f}.
+GaussQuad: multivariate Gauss quadrature
 }
 \details{
 R6 class with methods for linear transformations and integration.
 }
-\section{Fields}{
-
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{type}}{Type of Gauss quadrature}
 
@@ -69,5 +23,159 @@ R6 class with methods for linear transformations and integration.
 \item{\code{alpha}}{Parameter for Jacobi, Laguerre, beta and gamma quadratures}
 
 \item{\code{beta}}{Parameter for Jacobi and beta quadratures}
-}}
 
+\item{\code{nodes_changed}}{By location-scale transform using \code{axpy}?}
+
+\item{\code{weights_changed}}{By importance weighting using \code{reweight}?}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-GaussQuad-integrate}{\code{GaussQuad$integrate()}}
+\item \href{#method-GaussQuad-E}{\code{GaussQuad$E()}}
+\item \href{#method-GaussQuad-new}{\code{GaussQuad$new()}}
+\item \href{#method-GaussQuad-print}{\code{GaussQuad$print()}}
+\item \href{#method-GaussQuad-location_scale}{\code{GaussQuad$location_scale()}}
+\item \href{#method-GaussQuad-reweight}{\code{GaussQuad$reweight()}}
+\item \href{#method-GaussQuad-clone}{\code{GaussQuad$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GaussQuad-integrate"></a>}}
+\if{latex}{\out{\hypertarget{method-GaussQuad-integrate}{}}}
+\subsection{Method \code{integrate()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GaussQuad$integrate(f)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GaussQuad-E"></a>}}
+\if{latex}{\out{\hypertarget{method-GaussQuad-E}{}}}
+\subsection{Method \code{E()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GaussQuad$E(f)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GaussQuad-new"></a>}}
+\if{latex}{\out{\hypertarget{method-GaussQuad-new}{}}}
+\subsection{Method \code{new()}}{
+Create a new \code{GaussQuad} object.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GaussQuad$new(
+  type,
+  n,
+  d = 1,
+  alpha = NA,
+  beta = NA,
+  endpts = NULL,
+  prune_coef = 1 - 1/d,
+  prune_eps = TRUE
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{type}}{Type of Gauss quadrature.}
+
+\item{\code{n}}{Number of nodes in one dimension.}
+
+\item{\code{d}}{Number of dimensions.}
+
+\item{\code{alpha}}{Parameter for Jacobi, Laguerre, beta and gamma quadratures.}
+
+\item{\code{beta}}{Parameter for Jacobi and beta quadratures.}
+
+\item{\code{endpts}}{Endpoints to be fixed in quadrature.}
+
+\item{\code{prune_coef}}{Coefficient controling pruning: only weights above
+\code{exp(d * ((1 - pc) * log(min(w)) + pc * log(max(w))))} are kept.
+Defaults to \code{1 - 1 / d}. Use \code{prune_coef = 0} to keep all
+weights.}
+
+\item{\code{prune_eps}}{Prune weights below \code{eps(sum(weights))}? Defaults to TRUE.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A new \code{GaussQuad} object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GaussQuad-print"></a>}}
+\if{latex}{\out{\hypertarget{method-GaussQuad-print}{}}}
+\subsection{Method \code{print()}}{
+Prints object information.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GaussQuad$print()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GaussQuad-location_scale"></a>}}
+\if{latex}{\out{\hypertarget{method-GaussQuad-location_scale}{}}}
+\subsection{Method \code{location_scale()}}{
+Applies a location-scale transformation \code{A * x + y} to each node
+\code{x} in the grid.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GaussQuad$location_scale(location = NULL, scale = NULL, squared = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{location}}{Shift representing the location change.}
+
+\item{\code{scale}}{Square matrix or vector representing the scale.}
+
+\item{\code{squared}}{Is the scale squared? For probabilist kernels, it means
+that the scale is a variance parameter. In this case, the "sqrt" of the
+scale will be applied first.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GaussQuad-reweight"></a>}}
+\if{latex}{\out{\hypertarget{method-GaussQuad-reweight}{}}}
+\subsection{Method \code{reweight()}}{
+Reweights by multiplying importance weights and optionally normalizes.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GaussQuad$reweight(iw, log_weights = FALSE, normalize = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{iw}}{Importance weights}
+
+\item{\code{log_weights}}{Are the importance weights in log scale?}
+
+\item{\code{normalize}}{Should the new weights be normalized to sum to one?}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-GaussQuad-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-GaussQuad-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{GaussQuad$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}
