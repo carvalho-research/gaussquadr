@@ -3,186 +3,71 @@
 \name{GaussQuad}
 \alias{GaussQuad}
 \title{GaussQuad: multivariate Gauss quadrature}
-\description{
-GaussQuad: multivariate Gauss quadrature
+\usage{
+GaussQuad(...)
+}
+\arguments{
+\item{type}{Type of Gauss quadrature.}
 
-GaussQuad: multivariate Gauss quadrature
+\item{n}{Number of nodes in one dimension.}
+
+\item{d}{Number of dimensions.}
+
+\item{alpha}{Parameter for Jacobi, Laguerre, beta and gamma quadratures.}
+
+\item{beta}{Parameter for Jacobi and beta quadratures.}
+
+\item{endpts}{Endpoints to be fixed in quadrature.}
+
+\item{prune_coef}{Coefficient controling pruning: only weights above
+\code{exp(d * ((1 - pc) * log(min(w)) + pc * log(max(w))))} are kept.
+Defaults to \code{1 - 1 / d}. Use \code{prune_coef = 0} to keep all
+weights.}
+
+\item{prune_eps}{Prune weights below \code{eps(sum(weights))}? Defaults to TRUE.}
+
+\item{short}{Suppress type? Defaults to FALSE.}
+
+\item{scale}{Scale to apply to each dimension of the grid.}
+
+\item{rotation}{Rotation to apply to each node in the grid.}
+
+\item{shift}{Shift to apply to each dimension of the grid.}
+
+\item{f}{Integrand function.}
+}
+\value{
+A new \code{GaussQuad} object.
+
+The computed quadrature.
+}
+\description{
+Create a new \code{GaussQuad} object.
+
+Prints object information.
+
+Scale the node grid of a \code{GaussQuad} object.
+
+Rotates the node grid of a \code{GaussQuad} object.
+
+Shift the node grid of a \code{GaussQuad} object.
+
+Computes the quadrature of the integrand \code{f}.
 }
 \details{
 R6 class with methods for linear transformations and integration.
 }
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
+\section{Fields}{
+
 \describe{
 \item{\code{type}}{Type of Gauss quadrature}
 
 \item{\code{nodes}}{Grid of nodes}
 
 \item{\code{weights}}{Quadrature weights}
-}
-\if{html}{\out{</div>}}
-}
-\section{Methods}{
-\subsection{Public methods}{
-\itemize{
-\item \href{#method-GaussQuad-new}{\code{GaussQuad$new()}}
-\item \href{#method-GaussQuad-print}{\code{GaussQuad$print()}}
-\item \href{#method-GaussQuad-scale}{\code{GaussQuad$scale()}}
-\item \href{#method-GaussQuad-rotate}{\code{GaussQuad$rotate()}}
-\item \href{#method-GaussQuad-shift}{\code{GaussQuad$shift()}}
-\item \href{#method-GaussQuad-integrate}{\code{GaussQuad$integrate()}}
-\item \href{#method-GaussQuad-clone}{\code{GaussQuad$clone()}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GaussQuad-new"></a>}}
-\if{latex}{\out{\hypertarget{method-GaussQuad-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new \code{GaussQuad} object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GaussQuad$new(
-  type,
-  n,
-  d = 1,
-  alpha = 0,
-  beta = 0,
-  endpts = NULL,
-  prune_coef = 1 - 1/d,
-  prune_eps = TRUE
-)}\if{html}{\out{</div>}}
-}
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{type}}{Type of Gauss quadrature.}
+\item{\code{alpha}}{Parameter for Jacobi, Laguerre, beta and gamma quadratures}
 
-\item{\code{n}}{Number of nodes in one dimension.}
+\item{\code{beta}}{Parameter for Jacobi and beta quadratures}
+}}
 
-\item{\code{d}}{Number of dimensions.}
-
-\item{\code{alpha}}{Exponent in Jacobi and Laguerre quadratures.}
-
-\item{\code{beta}}{Exponent in Jacobi quadrature.}
-
-\item{\code{endpts}}{Endpoints to be fixed in quadrature.}
-
-\item{\code{prune_coef}}{Coefficient controling pruning: only weights above
-\code{exp(d * ((1 - pc) * log(min(w)) + pc * log(max(w))))} are kept.
-Defaults to \code{1 - 1 / d}. Use \code{prune_coef = 0} to keep all
-weights.}
-
-\item{\code{prune_eps}}{Prune weights below \code{eps(sum(weights))}? Defaults to TRUE.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A new \code{GaussQuad} object.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GaussQuad-print"></a>}}
-\if{latex}{\out{\hypertarget{method-GaussQuad-print}{}}}
-\subsection{Method \code{print()}}{
-Prints object information.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GaussQuad$print(short = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{short}}{Suppress type? Defaults to FALSE.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GaussQuad-scale"></a>}}
-\if{latex}{\out{\hypertarget{method-GaussQuad-scale}{}}}
-\subsection{Method \code{scale()}}{
-Scale the node grid of a \code{GaussQuad} object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GaussQuad$scale(scale)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{scale}}{Scale to apply to each dimension of the grid.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GaussQuad-rotate"></a>}}
-\if{latex}{\out{\hypertarget{method-GaussQuad-rotate}{}}}
-\subsection{Method \code{rotate()}}{
-Rotates the node grid of a \code{GaussQuad} object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GaussQuad$rotate(rotation)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{rotation}}{Rotation to apply to each node in the grid.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GaussQuad-shift"></a>}}
-\if{latex}{\out{\hypertarget{method-GaussQuad-shift}{}}}
-\subsection{Method \code{shift()}}{
-Shift the node grid of a \code{GaussQuad} object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GaussQuad$shift(shift)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{shift}}{Shift to apply to each dimension of the grid.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GaussQuad-integrate"></a>}}
-\if{latex}{\out{\hypertarget{method-GaussQuad-integrate}{}}}
-\subsection{Method \code{integrate()}}{
-Computes the quadrature of the integrand \code{f}.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GaussQuad$integrate(f)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{f}}{Integrand function.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-The computed quadrature.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GaussQuad-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-GaussQuad-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GaussQuad$clone(deep = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
-}

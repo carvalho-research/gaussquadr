@@ -92,17 +92,6 @@ static double class (int kind, int n, double alpha, double beta,
       a[n - 1] = 2. * n - 1 + alpha;
       break;
     }
-    /* Gaussian density: scaled "probabilist" Hermite on (-inf, inf),
-     * w(x) = exp(-x^2 / 2) / sqrt(2 * pi) */
-    case 7: {
-      muzero = 1.;
-      for (i = 1; i < n; i++) {
-        a[i - 1] = 0.;
-        b[i - 1] = sqrt(i);
-      }
-      a[n - 1] = 0.;
-      break;
-    }
   }
   return muzero; /* suppress warnings */
 }

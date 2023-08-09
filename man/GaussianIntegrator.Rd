@@ -3,97 +3,36 @@
 \name{GaussianIntegrator}
 \alias{GaussianIntegrator}
 \title{GaussianIntegrator: multivariate Gaussian quadrature}
-\description{
-GaussianIntegrator: multivariate Gaussian quadrature
+\usage{
+GaussianIntegrator(...)
+}
+\arguments{
+\item{...}{Remaining parameters passed to \code{GaussQuad} initializer.}
 
-GaussianIntegrator: multivariate Gaussian quadrature
+\item{n}{Number of nodes in one dimension or \code{GaussQuad} object of
+type "gaussian" to be copied.}
+
+\item{mean}{Mean of Gaussian distribution.}
+
+\item{variance}{Variance of Gaussian distribution. Can be an
+eigendecomposition, of class \code{eigen}.}
+}
+\value{
+A new \code{GaussianIntegrator} object.
+}
+\description{
+Create a new \code{GaussianIntegrator} object.
+
+Prints object information.
 }
 \details{
 R6 class for multivariate Gaussian expectation.
 }
-\section{Super class}{
-\code{\link[gaussquadr:GaussQuad]{gaussquadr::GaussQuad}} -> \code{GaussianIntegrator}
-}
-\section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{mu}}{Mean of Gaussian distribution}
+\section{Fields}{
 
-\item{\code{Sigma}}{Variance of Gaussian distribution}
-}
-\if{html}{\out{</div>}}
-}
-\section{Methods}{
-\subsection{Public methods}{
-\itemize{
-\item \href{#method-GaussianIntegrator-new}{\code{GaussianIntegrator$new()}}
-\item \href{#method-GaussianIntegrator-print}{\code{GaussianIntegrator$print()}}
-\item \href{#method-GaussianIntegrator-clone}{\code{GaussianIntegrator$clone()}}
-}
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
-<ul>
-<li><span class="pkg-link" data-pkg="gaussquadr" data-topic="GaussQuad" data-id="integrate"><a href='../../gaussquadr/html/GaussQuad.html#method-GaussQuad-integrate'><code>gaussquadr::GaussQuad$integrate()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="gaussquadr" data-topic="GaussQuad" data-id="rotate"><a href='../../gaussquadr/html/GaussQuad.html#method-GaussQuad-rotate'><code>gaussquadr::GaussQuad$rotate()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="gaussquadr" data-topic="GaussQuad" data-id="scale"><a href='../../gaussquadr/html/GaussQuad.html#method-GaussQuad-scale'><code>gaussquadr::GaussQuad$scale()</code></a></span></li>
-<li><span class="pkg-link" data-pkg="gaussquadr" data-topic="GaussQuad" data-id="shift"><a href='../../gaussquadr/html/GaussQuad.html#method-GaussQuad-shift'><code>gaussquadr::GaussQuad$shift()</code></a></span></li>
-</ul>
-</details>
+\describe{
+\item{\code{mean}}{Mean of Gaussian distribution}
+
+\item{\code{variance}}{Variance of Gaussian distribution}
 }}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GaussianIntegrator-new"></a>}}
-\if{latex}{\out{\hypertarget{method-GaussianIntegrator-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new \code{GaussianIntegrator} object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GaussianIntegrator$new(n, mu, Sigma, ...)}\if{html}{\out{</div>}}
-}
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{n}}{Number of nodes in one dimension or \code{GaussQuad} object of
-type "gaussian" to be copied.}
-
-\item{\code{mu}}{Mean of Gaussian distribution.}
-
-\item{\code{Sigma}}{Variance of Gaussian distribution. Can be an
-eigendecomposition, of class \code{eigen}.}
-
-\item{\code{...}}{Remaining parameters passed to \code{GaussQuad} initializer.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-A new \code{GaussianIntegrator} object.
-}
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GaussianIntegrator-print"></a>}}
-\if{latex}{\out{\hypertarget{method-GaussianIntegrator-print}{}}}
-\subsection{Method \code{print()}}{
-Prints object information.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GaussianIntegrator$print()}\if{html}{\out{</div>}}
-}
-
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GaussianIntegrator-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-GaussianIntegrator-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GaussianIntegrator$clone(deep = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
-}
