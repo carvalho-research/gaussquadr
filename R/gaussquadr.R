@@ -70,9 +70,11 @@ multi_grid <- function (x, n = length(x)) {
 }
 
 apply_integral <- function (f) {
-  gf <- if (missing(f)) self$nodes else
-    if (is.vector(self$nodes)) sapply(self$nodes, f) else
-      apply(self$nodes, 1, f)
+  if (is.vector(self$nodes)) {
+    gf <- if (missing(f)) self$nodes else sapply(self$nodes, f)
+  } else {
+    gf <- if (missing(f)) t(self$nodes) else apply(self$nodes, 1, f)
+  }
   if (is.vector(gf)) sum(gf * self$weights, na.rm = TRUE) else
     rowSums(sweep(gf, 2, self$weights, `*`), na.rm = TRUE)
 }
