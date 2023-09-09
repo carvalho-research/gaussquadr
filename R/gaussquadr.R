@@ -14,9 +14,15 @@
 NULL
 
 
+# TODO: move to C
 # log(exp(x) + exp(y))
 LOGEPS <- log(.Machine$double.eps)
 lse2 <- function (x, y) {
+  if (is.nan(x) || is.na(x)) {
+    if (is.nan(y) || is.na(y)) return(NA)
+    return(y)
+  }
+  if (is.nan(y) || is.na(y)) return(x)
   m <- max(x, y); d <- -abs(x - y)
   if (d < LOGEPS) m else m + log1p(exp(d))
 }
@@ -64,10 +70,11 @@ multi_grid <- function (x, n = length(x)) {
 }
 
 apply_integral <- function (f) {
-  gf <- if (is.vector(self$nodes)) sapply(self$nodes, f) else
-    apply(self$nodes, 1, f)
-  if (is.vector(gf)) sum(gf * self$weights) else
-    rowSums(sweep(gf, 2, self$weights, `*`))
+  gf <- if (missing(f)) self$nodes else
+    if (is.vector(self$nodes)) sapply(self$nodes, f) else
+      apply(self$nodes, 1, f)
+  if (is.vector(gf)) sum(gf * self$weights, na.rm = TRUE) else
+    rowSums(sweep(gf, 2, self$weights, `*`), na.rm = TRUE)
 }
 
 #' GaussQuad: multivariate Gauss quadrature
