@@ -167,12 +167,12 @@ GaussQuad <- R6::R6Class("GaussQuad", public = list(
       th <- exp(d * ((1 - prune_coef) * log(gq$weights[1]) +
                      prune_coef * log(gq$weights[(n + 1) / 2])))
     }
-    ng <- multi_grid(gq$nodes, d)
+    ng <- matrix(multi_grid(gq$nodes, d), ncol = d)
     w <- apply(multi_grid(gq$weights, d), 1, prod)
     if (prune_coef > 0) { ng <- ng[w >= th, ]; w <- w[w >= th] }
     if (prune_eps) {
       eps <- .Machine$double.eps * sum(w)
-      ng <- ng[w >= eps, ]; w <- w[w >= eps]
+      ng <- ng[w >= eps, , drop = FALSE]; w <- w[w >= eps]
     }
     self$type <- type; self$nodes <- ng; self$weights <- w
     self$alpha <- alpha; self$beta <- beta
