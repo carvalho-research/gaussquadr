@@ -57,6 +57,8 @@ gauss_quad <- function (kind, n, alpha = 0., beta = 0., endpts = NULL) {
   res <- list(nodes = numeric(n), weights = numeric(n))
   res$ierr <- .Call(G_gauss_quad, kind, alpha, beta, kpts, endpts, buffer,
                     res$nodes, res$weights, PACKAGE = "gaussquadr")
+  ord <- order(res$weights, decreasing = TRUE)
+  res$nodes <- res$nodes[ord]; res$weights <- res$weights[ord]
   res
 }
 
@@ -157,9 +159,9 @@ GaussQuad <- R6::R6Class("GaussQuad", public = list(
         gq$weights <- exp(log(gq$weights) - lz)
       },
       "beta" = {
-        gq$nodes <- rev(.5 * (1 - gq$nodes))
+        gq$nodes <- .5 * (1 - gq$nodes)
         lz <- lbeta(alpha, beta) + (alpha + beta - 1) * log(2)
-        gq$weights <- rev(exp(log(gq$weights) - lz))
+        gq$weights <- exp(log(gq$weights) - lz)
       }
     )
 
