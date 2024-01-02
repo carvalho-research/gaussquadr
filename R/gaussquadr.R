@@ -215,17 +215,21 @@ GaussQuad <- R6::R6Class("GaussQuad", public = list(
   location_scale = function (location = NULL, scale = NULL, squared = FALSE) {
     tg <- self$nodes
     if (!is.null(scale)) {
-      if (squared) {
-        if (is.vector(scale)) scale <- sqrt(scale) else {
-          if (!any(class(scale) == "eigen"))
-            scale <- eigen(scale, symmetric = TRUE)
-          scale <- sweep(scale$vectors, 2, sqrt(scale$values), `*`)
-        }
+      if (is.vector(scale)) {
+        if (squared) scale <- sqrt(scale)
+        sw <- abs(prod(scale))
+      } else {
+        if (!any(class(scale) == "eigen")) # eigen-decompose?
+          scale <- eigen(scale, symmetric = TRUE)
+        if (squared) scale$values <- sqrt(scale$values)
+        sw <- abs(prod(scale$values)) # Jacobian: abs det
+        scale <- sweep(scale$vectors, 2, scale$values, `*`) # restore
       }
       tg <- if (is.vector(tg)) tg * c(scale) else {
         if (is.vector(scale)) sweep(tg, 2, scale, `*`) else
           tcrossprod(tg, scale)
       }
+      self$weights <- self$weights * sw # reweight from Jacobian
     }
     if (!is.null(location)) {
       tg <- if (is.vector(tg)) tg + location else
