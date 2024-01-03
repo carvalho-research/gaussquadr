@@ -241,10 +241,11 @@ GaussQuad <- R6::R6Class("GaussQuad", public = list(
 
   #' @description
   #' Reweights by multiplying importance weights and optionally normalizes.
-  #' @param iw Importance weights
+  #' @param iw Importance weights; if a function, apply to nodes first
   #' @param log_weights Are the importance weights in log scale?
   #' @param normalize Should the new weights be normalized to sum to one?
-  reweight = function (iw, log_weights = FALSE, normalize = FALSE) {
+  reweight = function (iw, ..., log_weights = FALSE, normalize = FALSE) {
+    if (is.function(iw)) iw <- iw(self$nodes, ...)
     if (log_weights) {
       lw <- iw + log(self$weights)
       if (normalize) lw <- lw - lse(lw)
@@ -254,7 +255,12 @@ GaussQuad <- R6::R6Class("GaussQuad", public = list(
       if (normalize) w <- w / sum(w)
     }
     self$weights <- w; self$weights_changed <- TRUE
+    invisible(self)
   },
+
+  #' @description
+  #' Returns the sum of the weights.
+  sum = function () sum(self$weights),
 
   #' @description
   #' Computes the quadrature of the integrand \code{f}.

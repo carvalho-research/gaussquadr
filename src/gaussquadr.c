@@ -12,7 +12,7 @@
 static double class (int kind, int n, double alpha, double beta,
     double *b, double *a) {
   int i;
-  double abi, muzero;
+  double abi, muzero = 1.;
 
   switch (kind) {
     /* Legendre polynomials p(x) on (-1, +1), w(x) = 1 */
