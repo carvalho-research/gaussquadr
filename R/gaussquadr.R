@@ -26,7 +26,14 @@ lse2 <- function (x, y) {
   m <- max(x, y); d <- -abs(x - y)
   if (d < LOGEPS) m else m + log1p(exp(d))
 }
-lse <- function (x) Reduce(lse2, x)
+#lse <- function (x) Reduce(lse2, x)
+
+#' Efficiently and safely computes the aggregate log-sum-exp of the vector \code{x}.
+#' @param x Numeric vector.
+#' @return \code{log(sum(exp(x)))}.
+#' @export
+lse <- function (x, na_rm = FALSE)
+  .Call(G_lse, as.double(x), na_rm, PACKAGE = "gaussquadr")
 
 
 gauss_kinds <- list(
@@ -72,10 +79,16 @@ multi_grid <- function (x, n = length(x)) {
 }
 
 apply_integral <- function (f) {
-  if (is.vector(self$nodes)) {
-    gf <- if (missing(f)) self$nodes else sapply(self$nodes, f)
+  if (missing(f)) {
+    gf <- if (is.vector(self$nodes)) self$nodes else t(self$nodes)
   } else {
-    gf <- if (missing(f)) t(self$nodes) else apply(self$nodes, 1, f)
+    if (is.numeric(f)) {
+      if (length(f) == 1) return(f * sum(self$weights))
+      gf <- f
+    } else { # function?
+      gf <- if (is.vector(self$nodes)) sapply(self$nodes, f) else
+        apply(self$nodes, 1, f)
+    }
   }
   if (is.vector(gf)) sum(gf * self$weights, na.rm = TRUE) else
     rowSums(sweep(gf, 2, self$weights, `*`), na.rm = TRUE)
@@ -257,10 +270,6 @@ GaussQuad <- R6::R6Class("GaussQuad", public = list(
     self$weights <- w; self$weights_changed <- TRUE
     invisible(self)
   },
-
-  #' @description
-  #' Returns the sum of the weights.
-  sum = function () sum(self$weights),
 
   #' @description
   #' Computes the quadrature of the integrand \code{f}.

@@ -39,7 +39,6 @@ R6 class with methods for linear transformations and integration.
 \item \href{#method-GaussQuad-print}{\code{GaussQuad$print()}}
 \item \href{#method-GaussQuad-location_scale}{\code{GaussQuad$location_scale()}}
 \item \href{#method-GaussQuad-reweight}{\code{GaussQuad$reweight()}}
-\item \href{#method-GaussQuad-sum}{\code{GaussQuad$sum()}}
 \item \href{#method-GaussQuad-clone}{\code{GaussQuad$clone()}}
 }
 }
@@ -161,16 +160,6 @@ Reweights by multiplying importance weights and optionally normalizes.
 }
 \if{html}{\out{</div>}}
 }
-}
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GaussQuad-sum"></a>}}
-\if{latex}{\out{\hypertarget{method-GaussQuad-sum}{}}}
-\subsection{Method \code{sum()}}{
-Returns the sum of the weights.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GaussQuad$sum()}\if{html}{\out{</div>}}
-}
-
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GaussQuad-clone"></a>}}

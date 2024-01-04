@@ -4,6 +4,24 @@
 #include <Rmath.h>
 #include <Rinternals.h>
 
+#define LOGEPS (-36.043653389117) /* log(double precision) */
+
+static double lse2 (double w1, double w2) {
+  double d, w;
+  if (!isfinite(w1)) return w2;
+  if (!isfinite(w2)) return w1;
+  if (w1 > w2) {
+    d = w2 - w1; w = w1;
+  }
+  else {
+    d = w1 - w2; w = w2;
+  }
+  if (d < LOGEPS) return w;
+  return w + log1p(exp(d));
+}
+
+
+
 /* The code below is an adaptation to C from gaussq.f in Netlib:
  * https://www.netlib.org/go/gaussq.f */
 
@@ -210,6 +228,24 @@ static int gaussq (int kind, int n, double alpha, double beta, int kpts,
   return ierr;
 }
 
+
+/* Interface */
+
+SEXP lse (SEXP sx, SEXP snarm) {
+  int i, n = length(sx);
+  double *x = REAL(sx);
+  int narm = asInteger(snarm);
+  double l = x[0];
+  for (i = 1; i < n; i++) {
+    if (ISNA(x[i]) || ISNAN(x[i])) {
+      if (!narm) return ScalarReal(x[i]);
+    } else {
+      l = lse2(l, x[i]);
+    }
+  }
+  return ScalarReal(l);
+}
+
 SEXP gauss_quad (SEXP skind, SEXP salpha, SEXP sbeta, SEXP skpts,
     SEXP sendpts, SEXP sb, SEXP st, SEXP sw) {
   return ScalarInteger(gaussq(asInteger(skind), length(sb),
@@ -218,6 +254,7 @@ SEXP gauss_quad (SEXP skind, SEXP salpha, SEXP sbeta, SEXP skpts,
 }
 
 static const R_CallMethodDef callMethods[] = {
+  {"lse", (DL_FUNC) &lse, 2},
   {"gauss_quad", (DL_FUNC) &gauss_quad, 8},
   {NULL, NULL, 0} /* guard */
 };
