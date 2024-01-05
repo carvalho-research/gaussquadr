@@ -131,7 +131,7 @@ Applies a location-scale transformation \code{A * x + y} to each node
 \describe{
 \item{\code{location}}{Shift representing the location change.}
 
-\item{\code{scale}}{Square matrix or vector representing the scale.}
+\item{\code{scale}}{Square matrix, vector, or \code{symm_eigen} decomposition representing the scale.}
 
 \item{\code{squared}}{Is the scale squared? For probabilist kernels, it means
 that the scale is a variance parameter. In this case, the "sqrt" of the

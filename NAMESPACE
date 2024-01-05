@@ -2,4 +2,5 @@
 
 export(GaussQuad)
 export(lse)
+export(symm_eigen)
 useDynLib(gaussquadr, .registration = TRUE, .fixes = "G_")

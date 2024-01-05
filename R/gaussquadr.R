@@ -13,20 +13,21 @@
 #' @useDynLib gaussquadr, .registration = TRUE, .fixes = "G_"
 NULL
 
-
-# TODO: move to C
-# log(exp(x) + exp(y))
-LOGEPS <- log(.Machine$double.eps)
-lse2 <- function (x, y) {
-  if (is.nan(x) || is.na(x)) {
-    if (is.nan(y) || is.na(y)) return(NA)
-    return(y)
+#' Compute robust eigendecomposition of symmetric PD matrix \code{A}.
+#' @param Symmetric positive-definite matrix to be decomposed
+#' @param rank_tol Tolerance for rank determination: only eigenvalues > plus(\code{rank_tol} * max(eigenvalues)) are kept. Defaults to sqrt of machine precision.
+#' @return \code{eigen} object with extra field \code{valid} indicating valid eigenvalues
+#' @export
+symm_eigen <- function (A, rank_tol = sqrt(.Machine$double.eps)) {
+  ea <- eigen(A, symmetric = TRUE)
+  ea$valid <- ea$values > max(rank_tol * ea$values[1], 0)
+  if (!all(ea$valid)) {
+    ea$vectors <- ea$vectors[, ea$valid, drop = FALSE]
+    ea$values <- ea$values[ea$valid]
   }
-  if (is.nan(y) || is.na(y)) return(x)
-  m <- max(x, y); d <- -abs(x - y)
-  if (d < LOGEPS) m else m + log1p(exp(d))
+  ea
 }
-#lse <- function (x) Reduce(lse2, x)
+
 
 #' Efficiently and safely computes the aggregate log-sum-exp of the vector \code{x}.
 #' @param x Numeric vector.
@@ -221,7 +222,7 @@ GaussQuad <- R6::R6Class("GaussQuad", public = list(
   #' Applies a location-scale transformation \code{A * x + y} to each node
   #' \code{x} in the grid.
   #' @param location Shift representing the location change.
-  #' @param scale Square matrix or vector representing the scale.
+  #' @param scale Square matrix, vector, or \code{symm_eigen} decomposition representing the scale.
   #' @param squared Is the scale squared? For probabilist kernels, it means
   #' that the scale is a variance parameter. In this case, the "sqrt" of the
   #' scale will be applied first.
@@ -233,14 +234,15 @@ GaussQuad <- R6::R6Class("GaussQuad", public = list(
         sw <- abs(prod(scale))
       } else {
         if (!any(class(scale) == "eigen")) # eigen-decompose?
-          scale <- eigen(scale, symmetric = TRUE)
+          scale <- symm_eigen(scale)
         if (squared) scale$values <- sqrt(scale$values)
+        valid <- scale$valid
         sw <- abs(prod(scale$values)) # Jacobian: abs det
         scale <- sweep(scale$vectors, 2, scale$values, `*`) # restore
       }
       tg <- if (is.vector(tg)) tg * c(scale) else {
         if (is.vector(scale)) sweep(tg, 2, scale, `*`) else
-          tcrossprod(tg, scale)
+          tcrossprod(tg[, valid], scale)
       }
       self$weights <- self$weights * sw # reweight from Jacobian
     }
