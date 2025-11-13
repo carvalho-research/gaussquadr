@@ -33,8 +33,9 @@ symm_eigen <- function (A, rank_tol = sqrt(.Machine$double.eps)) {
 #' @param x Numeric vector.
 #' @return \code{log(sum(exp(x)))}.
 #' @export
-lse <- function (x, na_rm = FALSE)
+lse <- function (x, na_rm = FALSE) {
   .Call(G_lse, as.double(x), na_rm, PACKAGE = "gaussquadr")
+}
 
 
 gauss_kinds <- list(
@@ -49,9 +50,9 @@ gauss_kinds <- list(
   "uniform" = 1L, # w(x) = 1 on (0, 1)
   "wigner" = 3L, # w(x) = sqrt(1-x^2) / (pi / 2) on (-1, 1)
   "gaussian" = 4L, # w(x) = exp(-x^2 / 2) / sqrt(2 * pi) on (-inf, inf)
-  "beta" = 5L, # w(x) = x^(alpha-1) * (1-x)^beta / B(alpha, beta) on (0, 1)
+  "beta" = 5L, # w(x) = x^(alpha-1) * (1-x)^(beta-1) / B(alpha, beta) on (0, 1)
   "gamma" = 6L # w(x) = x^(alpha-1) * exp(-beta*x) /
-               #          (beta^alpha / Gamma(alpha)) on (0, inf)
+  #                       (beta^alpha / Gamma(alpha)) on (0, inf)
 )
 
 gauss_quad <- function (kind, n, alpha = 0., beta = 0., endpts = NULL) {
@@ -73,7 +74,9 @@ gauss_quad <- function (kind, n, alpha = 0., beta = 0., endpts = NULL) {
 # TODO: filter by threshold
 # TODO: iterator
 multi_grid <- function (x, n = length(x)) {
-  if (n == 1) matrix(x, ncol = 1) else {
+  if (n == 1) {
+    matrix(x, ncol = 1)
+  } else {
     l <- length(x); g <- multi_grid(x, n - 1)
     cbind(kronecker(rep(1, l), g), kronecker(x, rep(1, l ^ (n - 1))))
   }
@@ -162,7 +165,9 @@ GaussQuad <- R6::R6Class("GaussQuad", public = list(
         gq$nodes <- .5 * (1 + gq$nodes)
         gq$weights <- gq$weights / 2
       },
-      "wigner" = { gq$weights <- gq$weights / (pi / 2) },
+      "wigner" = {
+        gq$weights <- gq$weights / (pi / 2)
+      },
       "gaussian" = {
         gq$nodes <- gq$nodes * sqrt(2)
         gq$weights <- gq$weights / sqrt(pi)
@@ -185,7 +190,9 @@ GaussQuad <- R6::R6Class("GaussQuad", public = list(
     }
     ng <- matrix(multi_grid(gq$nodes, d), ncol = d)
     w <- apply(multi_grid(gq$weights, d), 1, prod)
-    if (prune_coef > 0) { ng <- ng[w >= th, ]; w <- w[w >= th] }
+    if (prune_coef > 0) {
+      ng <- ng[w >= th, ]; w <- w[w >= th]
+    }
     if (prune_eps) {
       eps <- .Machine$double.eps * sum(w)
       ng <- ng[w >= eps, , drop = FALSE]; w <- w[w >= eps]
@@ -240,9 +247,11 @@ GaussQuad <- R6::R6Class("GaussQuad", public = list(
         sw <- abs(prod(scale$values)) # Jacobian: abs det
         scale <- sweep(scale$vectors, 2, scale$values, `*`) # restore
       }
-      tg <- if (is.vector(tg)) tg * c(scale) else {
+      tg <- if (is.vector(tg)) {
+        tg * c(scale)
+      } else {
         if (is.vector(scale)) sweep(tg, 2, scale, `*`) else
-          tcrossprod(tg[, valid], scale)
+          tcrossprod(if (all(valid)) tg else tg[, valid], scale)
       }
       self$weights <- self$weights * sw # reweight from Jacobian
     }
