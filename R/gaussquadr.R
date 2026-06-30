@@ -184,13 +184,11 @@ GaussQuad <- R6::R6Class("GaussQuad", public = list(
       }
     )
 
-    if (prune_coef > 0) {
-      th <- exp(d * ((1 - prune_coef) * log(gq$weights[1]) +
-                     prune_coef * log(gq$weights[(n + 1) / 2])))
-    }
     ng <- matrix(multi_grid(gq$nodes, d), ncol = d)
     w <- apply(multi_grid(gq$weights, d), 1, prod)
     if (prune_coef > 0) {
+      th <- exp(d * ((1 - prune_coef) * log(gq$weights[1]) +
+                     prune_coef * log(gq$weights[(n + 1) / 2])))
       ng <- ng[w >= th, ]; w <- w[w >= th]
     }
     if (prune_eps) {
